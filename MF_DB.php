@@ -17,12 +17,7 @@ Class MF_DB{
 
 //Database config Start here
 	public function add($table,$data){
-		$fild_value = array();
-		foreach ($data as $field => $value) {
-			$fild_value[] = "`".$field."` = '".$value."'";
-		}
-		$data_string = implode(",", $fild_value);
-
+		$data_string = $this->get_data($data);
 		$sql = "INSERT INTO `$table` SET ".$data_string;
 		
 		$query = mysqli_query($this->con,$sql);
@@ -35,12 +30,7 @@ Class MF_DB{
 
 	public function update($table,$data,$where=1){
 		$where_string = $this->get_where($where);
-		$fild_value = array();
-		foreach ($data as $field => $value) {
-			$fild_value[] = "`".$field."` = '".$value."'";
-		}
-		$data_string = implode(",", $fild_value);
-
+		$data_string = $this->get_data($data);
 		$sql = "UPDATE `$table` SET ".$data_string." WHERE ".$where_string;
 		
 		$query = mysqli_query($this->con,$sql);
@@ -100,6 +90,14 @@ Created to internal use
 		}else{
 			return $where;
 		}
+	}
+
+	private function get_data($data){
+		$fild_value = array();
+		foreach ($data as $field => $value) {
+			$fild_value[] = "`".$field."` = '".$value."'";
+		}
+		return implode(",", $fild_value);
 	}
 //Database config End here
 }
