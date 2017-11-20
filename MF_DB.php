@@ -101,3 +101,5 @@ Created to internal use
 	}
 //Database config End here
 }
+
+$db = new MF_DB();

@@ -5,5 +5,6 @@ $where = array(
 	"catetory" => "Cement"
 );
 
-$mfdb = new MF_DB();
-print_r($mfdb->read("stock"));
+$where = array("id" => 1);
+$r = $db->query("select* from stock");
+print_r($r);
