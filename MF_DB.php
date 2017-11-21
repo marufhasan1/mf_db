@@ -41,10 +41,16 @@ Class MF_DB{
 		}
 	}
 
-	public function read($table,$where = 1){
+	public function read($table,$where = null,$order_by = null,$order_type = null){
 		$where_string = $this->get_where($where);
 
-		$sql = "SELECT * FROM `$table` WHERE ".$where_string;
+		$sql = "SELECT * FROM `$table`";
+		if($where!=null){
+			$sql.= " WHERE ".$where_string;
+		}
+		if($order_by!=null){
+			$sql.= " ORDER BY `".$order_by."` ".$order_type;
+		}
 		
 		$query = mysqli_query($this->con,$sql);
 		if($query){
