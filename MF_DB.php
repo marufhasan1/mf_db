@@ -51,7 +51,7 @@ Class MF_DB{
 		if($order_by!=null){
 			$sql.= " ORDER BY `".$order_by."` ".$order_type;
 		}
-		
+		echo $sql;
 		$query = mysqli_query($this->con,$sql);
 		if($query){
 			$datas = array();
@@ -86,10 +86,11 @@ Created to internal use
 		if(is_array($where)){
 			$fild_value = array();
 			foreach ($where as $field => $value) {
-				if(preg_match("/ >=/i", $field)||preg_match("/ <=/i", $field)||preg_match("/ </i", $field)||preg_match("/ >/i", $field)||preg_match("/ !=/i", $field)){
-					$fild_value[] = "`".$field."` '".$value."'";
+				$field = explode(" ", $field);
+				if(count($field)>1){
+					$fild_value[] = "`".$field[0]."` ".$field[1]." '".$value."'";
 				}else{
-					$fild_value[] = "`".$field."` = '".$value."'";
+					$fild_value[] = "`".$field[0]."` = '".$value."'";
 				}
 			}
 			return implode(" and ", $fild_value);

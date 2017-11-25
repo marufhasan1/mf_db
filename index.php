@@ -6,5 +6,5 @@ $where = array(
 );
 
 $where = array("id" => 1);
-$r = $db->read("select* from stock");
+$r = $db->read("admission",$where);
 print_r($r);
