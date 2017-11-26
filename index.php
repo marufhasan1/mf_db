@@ -6,5 +6,8 @@ $where = array(
 );
 
 $where = array("id" => 1);
-$r = $db->read("admission",$where);
+$r = $db->read_test();
 print_r($r);
+echo "<hr/>";
+print_r($db->test_red());
+
