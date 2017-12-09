@@ -7,6 +7,8 @@ Class MF_DB{
     private $where = null;
     private $sql = "";
     private $query = null;
+    private $order_by = null;
+    private $group_by = null;
 	//SQL Property End
 
     function __construct() {
@@ -28,7 +30,9 @@ Class MF_DB{
 		$this->select = "*";
     	$this->where = null;
     	$this->sql = "";
-    	$this->query = "";
+    	$this->query = null;
+    	$this->order_by = null;
+    	$this->group_by = null;
     }
 
 //Database config Start here
@@ -82,10 +86,15 @@ Class MF_DB{
 		}
 	}
 */
-	public function read_test(){
-		$this->select("opening_date");
-		return $this->get("account")->result();
+	public function read_test($table,$select,$where = array(),$order_by,$group_by){
+		$this->select($select);
+		$this->group_by($group_by);
+		$this->where($where);
+		$this->order_by($order_by);
+
+		return $this->get($table)->result();
 	}
+
 	public function test_red(){
 		return $this->get("account")->result();
 	}
@@ -106,23 +115,8 @@ Class MF_DB{
 /*
 Generate Where String
 Created to internal use
-*//*
-	private function get_where($where){
-		if(is_array($where)){
-			$fild_value = array();
-			foreach ($where as $field => $value) {
-				$field = explode(" ", $field);
-				if(count($field)>1){
-					$fild_value[] = "`".$field[0]."` ".$field[1]." '".$value."'";
-				}else{
-					$fild_value[] = "`".$field[0]."` = '".$value."'";
-				}
-			}
-			return implode(" and ", $fild_value);
-		}else{
-			return $where;
-		}
-	}*/
+*/
+
 /*
 	private function get_data($data){
 		$fild_value = array();
@@ -132,9 +126,24 @@ Created to internal use
 		return implode(",", $fild_value);
 	}
 */
+
+	//The Query will build in get function
 	private function get($table){
-		$this->sql = "SELECT " . $this->select . " FROM ";
-		$this->sql.=" `".$table."`";
+		$this->sql = "SELECT " . $this->select . " FROM "; //Initialize the SQL
+		$this->sql.=" `".$table."`"; // concatenate the table name
+
+		if($this->where != null){// concatenate the where string name
+			$this->sql.=" WHERE ".$this->where;
+		}
+
+		if($this->group_by != null){// concatenate the order by string name
+			$this->sql.=" GROUP BY ".$this->group_by;
+		}
+
+		if($this->order_by != null){// concatenate the order by string name
+			$this->sql.=" ORDER BY ".$this->order_by;
+		}
+
 		$this->query = mysqli_query($this->con,$this->sql);
 		return $this;
 	}
@@ -153,13 +162,54 @@ Created to internal use
 		}
 	}
 
-//Get Result from the query
-
-
-	private function select($c_name){
+//Set Query condition Start here [Step: Set Query condition Start here]
+	private function select($c_name){ //column name can be single column name or multiple with comma seperator
 		$this->select = $c_name;
 	}
-//Database config End here
+
+	private function where($where){ //$where as array or complete where string
+		$this->where = $this->gen_where($where);
+	}
+
+	private function group_by($column){
+		$this->group_by = $column;
+	}
+
+	public function order_by($order){//$order as array key = column Name and value = order Type
+		$o_array = array();
+		if(count($order)>0){
+			foreach ($order as $column => $type) {
+				$o_array[] = "`".$column."` ".$type;
+			}
+		}
+		$o_string = implode(", ", $o_array);
+		$this->order_by = $o_string;
+	}
+
+//Set Query condition End here
+
+
+//Core tools Start here
+/*
+This functions are created to use in "Set Query Condition Step"
+*/
+	private function gen_where($where){
+		if(is_array($where) && count($where)>0){
+			$fild_value = array();
+			foreach ($where as $field => $value) {
+				$field = explode(" ", $field);
+				if(count($field)>1){
+					$fild_value[] = "`".$field[0]."` ".$field[1]." '".$value."'";
+				}else{
+					$fild_value[] = "`".$field[0]."` = '".$value."'";
+				}
+			}
+			return implode(" and ", $fild_value);
+		}else{
+			return $where;
+		}
+	}
+//Core tools End here
 }
 
 $db = new MF_DB();
