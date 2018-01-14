@@ -9,6 +9,8 @@ Class MF_DB{
     private $query = null;
     private $order_by = null;
     private $group_by = null;
+    private $limit = null;
+    private $offset = null;
 	//SQL Property End
 
     function __construct() {
@@ -33,6 +35,8 @@ Class MF_DB{
     	$this->query = null;
     	$this->order_by = null;
     	$this->group_by = null;
+    	$this->limit = null;
+    	$this->offset = null;
     }
 
 //Database config Start here
@@ -86,11 +90,12 @@ Class MF_DB{
 		}
 	}
 */
-	public function read_test($table,$select,$where = array(),$order_by,$group_by){
+	public function read_test($table,$select,$where = array(),$order_by,$group_by,$limit=null,$offset=null){
 		$this->select($select);
 		$this->group_by($group_by);
 		$this->where($where);
 		$this->order_by($order_by);
+		$this->limit($limit,$offset);
 
 		return $this->get($table)->result();
 	}
@@ -144,6 +149,14 @@ Created to internal use
 			$this->sql.=" ORDER BY ".$this->order_by;
 		}
 
+		if($this->limit != null){// concatenate the LIMIT number
+			$this->sql.=" LIMIT ".$this->limit;
+		}
+
+		if($this->limit != null && $this->offset != null){// concatenate the offset number
+			$this->sql.=" OFFSET ".$this->offset;
+		}
+
 		$this->query = mysqli_query($this->con,$this->sql);
 		return $this;
 	}
@@ -175,7 +188,7 @@ Created to internal use
 		$this->group_by = $column;
 	}
 
-	public function order_by($order){//$order as array key = column Name and value = order Type
+	private function order_by($order){//$order as array key = column Name and value = order Type
 		$o_array = array();
 		if(count($order)>0){
 			foreach ($order as $column => $type) {
@@ -185,6 +198,15 @@ Created to internal use
 		$o_string = implode(", ", $o_array);
 		$this->order_by = $o_string;
 	}
+
+	private function limit($limit,$offset = null){
+		$this->limit = $limit;
+		if($offset!=null){
+			$this->offset = $offset;
+		}
+	}
+
+
 
 //Set Query condition End here
 
