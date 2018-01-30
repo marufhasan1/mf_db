@@ -4,6 +4,7 @@ Class MF_DB{
 	private $con;
 	//SQL Property Start
 	private $select = "*";
+	private $select_max = null;
     private $where = null;
     private $sql = "";
     private $query = null;
@@ -28,8 +29,9 @@ Class MF_DB{
     	//Database Connection End here
     }
     
-    function reset_sql_prop(){
+    private function reset_sql_prop(){
 		$this->select = "*";
+		$select_max = null;
     	$this->where = null;
     	$this->sql = "";
     	$this->query = null;
@@ -90,6 +92,8 @@ Class MF_DB{
 		}
 	}
 */
+
+	//User Define Functions
 	public function read_test($table,$select,$where = array(),$order_by,$group_by,$limit=null,$offset=null){
 		$this->select($select);
 		$this->group_by($group_by);
@@ -100,9 +104,16 @@ Class MF_DB{
 		return $this->get($table)->result();
 	}
 
+	public function get_max($table,$column,$where = array()){
+		$this->select_max($column);
+		$this->where($where);
+		return $this->get($table)->result();
+	}
+
 	public function test_red(){
 		return $this->get("account")->result();
 	}
+	//User Define Functions
 
 	public function query($sql){
 		$query = mysqli_query($this->con,$sql);
@@ -137,6 +148,11 @@ Created to internal use
 		$this->sql = "SELECT " . $this->select . " FROM "; //Initialize the SQL
 		$this->sql.=" `".$table."`"; // concatenate the table name
 
+		//All Select Claus
+		if($this->select_max != null){
+			$this->select = "MAX(`".$this->select_max."`) AS `".$this->select_max."`";
+		}
+
 		if($this->where != null){// concatenate the where string name
 			$this->sql.=" WHERE ".$this->where;
 		}
@@ -170,8 +186,13 @@ Created to internal use
 			$this->reset_sql_prop();
 			return $datas;
 		}else{
+			$err_str = '<h2>A Database Error Occurred</h2>';
+			$err_str.= '<p>Error Number: '. mysqli_errno($this->con).'</p>';
+			$err_str.= '<p>'.mysqli_error($this->con).'</p>';
+			$err_str.= '<p>'.$this->sql.'</p>';
+			
 			$this->reset_sql_prop();
-			return mysqli_error($this->con);
+			return $err_str;
 		}
 	}
 
@@ -204,6 +225,10 @@ Created to internal use
 		if($offset!=null){
 			$this->offset = $offset;
 		}
+	}
+
+	private function select_max($column){
+		$this->select_max = $column;
 	}
 
 

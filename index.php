@@ -14,5 +14,7 @@ print_r($r);
 echo "<hr/>";
 print_r($db->test_red());
 echo "<hr/>";
+print_r($db->get_max("accountt","id"));
+
 echo "</pre>";
 
