@@ -14,7 +14,11 @@ print_r($r);
 echo "<hr/>";
 print_r($db->test_red());
 echo "<hr/>";
-print_r($db->get_max("accountt","id"));
-
+$max = $db->get_max("account","id");
+$min = $db->get_min("account","id");
+print_r($max);
+print_r($min);
+echo "<hr/>";
+$distinct = $db->get_distinct("account","id");
+print_r($distinct);
 echo "</pre>";
-

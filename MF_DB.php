@@ -5,6 +5,8 @@ Class MF_DB{
 	//SQL Property Start
 	private $select = "*";
 	private $select_max = null;
+	private $select_min = null;
+	private $select_distinct = null;
     private $where = null;
     private $sql = "";
     private $query = null;
@@ -32,6 +34,8 @@ Class MF_DB{
     private function reset_sql_prop(){
 		$this->select = "*";
 		$select_max = null;
+		$select_min = null;
+		$select_distinct = null;
     	$this->where = null;
     	$this->sql = "";
     	$this->query = null;
@@ -93,7 +97,9 @@ Class MF_DB{
 	}
 */
 
-	//User Define Functions
+	//================================================================================
+	//=========================|User Define Functions (TEST)|=========================
+	//================================================================================
 	public function read_test($table,$select,$where = array(),$order_by,$group_by,$limit=null,$offset=null){
 		$this->select($select);
 		$this->group_by($group_by);
@@ -110,10 +116,24 @@ Class MF_DB{
 		return $this->get($table)->result();
 	}
 
+	public function get_min($table,$column,$where = array()){
+		$this->select_min($column);
+		$this->where($where);
+		return $this->get($table)->result();
+	}
+
+	public function get_distinct($table,$column,$where = array()){
+		$this->select_distinct($column);
+		$this->where($where);
+		return $this->get($table)->result();
+	}
+
 	public function test_red(){
 		return $this->get("account")->result();
 	}
-	//User Define Functions
+	//================================================================================
+	//==========================|User Define Functions (TEST)|========================
+	//================================================================================
 
 	public function query($sql){
 		$query = mysqli_query($this->con,$sql);
@@ -144,14 +164,24 @@ Created to internal use
 */
 
 	//The Query will build in get function
-	private function get($table){
-		$this->sql = "SELECT " . $this->select . " FROM "; //Initialize the SQL
-		$this->sql.=" `".$table."`"; // concatenate the table name
-
-		//All Select Claus
+	private function get($table){ 
+		//All Select Statement Start here
 		if($this->select_max != null){
 			$this->select = "MAX(`".$this->select_max."`) AS `".$this->select_max."`";
 		}
+
+		if($this->select_min != null){
+			$this->select = "MIN(`".$this->select_max."`) AS `".$this->select_max."`";
+		}
+
+		if($this->select_distinct != null){
+			$this->select = "DISTINCT `".$this->select_distinct."`";
+		}
+		//All Select Statement End here
+
+		$this->sql = "SELECT " . $this->select . " FROM "; //Initialize the SQL
+		$this->sql.=" `".$table."`"; // concatenate the table name
+
 
 		if($this->where != null){// concatenate the where string name
 			$this->sql.=" WHERE ".$this->where;
@@ -190,6 +220,7 @@ Created to internal use
 			$err_str.= '<p>Error Number: '. mysqli_errno($this->con).'</p>';
 			$err_str.= '<p>'.mysqli_error($this->con).'</p>';
 			$err_str.= '<p>'.$this->sql.'</p>';
+			$err_str.= '<p> File Name'.mysqli_error($this->con)->getFile().'</p>';
 			
 			$this->reset_sql_prop();
 			return $err_str;
@@ -229,6 +260,13 @@ Created to internal use
 
 	private function select_max($column){
 		$this->select_max = $column;
+	}
+
+	private function select_min($column){
+		$this->select_min = $column;
+	}
+	private function select_distinct($column){
+		$this->select_distinct = $column;
 	}
 
 
